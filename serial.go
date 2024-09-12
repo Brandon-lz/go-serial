@@ -22,6 +22,9 @@ type Port interface {
 	// the serial port or an error occurs.
 	Read(p []byte) (n int, err error)
 
+	// Read a complete piece of data. 
+	ReadLine()(line []byte, err error) 
+
 	// Send the content of the data byte array to the serial port.
 	// Returns the number of bytes written.
 	Write(p []byte) (n int, err error)

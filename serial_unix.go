@@ -15,6 +15,8 @@ import (
 	"sync"
 	"sync/atomic"
 	"time"
+	"bytes"
+	"io"
 
 	"go.bug.st/serial/unixutils"
 	"golang.org/x/sys/unix"
@@ -108,6 +110,26 @@ func (port *unixPort) Read(p []byte) (int, error) {
 		return n, err
 	}
 }
+
+func (port *unixPort) ReadLine()(line []byte, err error) {
+	readBuff := make([]byte, 100)
+	_dataBuff := make([]byte, 100)
+	dataBuff := bytes.NewBuffer(_dataBuff)
+	for {
+		n, err := port.Read(readBuff)
+		if err != nil {
+			// read error
+			return nil, err
+		}
+		if n == 0 {
+			d, _ := io.ReadAll(dataBuff)
+			dataBuff.Reset()
+			return d,nil
+		}
+		dataBuff.Write(readBuff[:n])
+	}
+}
+
 
 func (port *unixPort) Write(p []byte) (n int, err error) {
 	n, err = unix.Write(port.handle, p)
